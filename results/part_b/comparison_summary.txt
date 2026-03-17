@@ -1,0 +1,7 @@
+Part B — BM vs SGBM Comparison Summary
+============================================================
+
+BM time: 0.008s, SGBM time: 0.012s
+Valid 3D points: 103441
+F matrix rank: 2
+Inlier matches: 386

@@ -1,0 +1,18 @@
+Part C — SIFT vs ORB Comparison
+======================================================================
+
+Pair 1-2:
+  SIFT: 2002 good matches, 1999 inliers
+  ORB:  580 good matches, 566 inliers
+
+Pair 2-3:
+  SIFT: 1531 good matches, 1530 inliers
+  ORB:  934 good matches, 919 inliers
+
+Pair 3-4:
+  SIFT: 1270 good matches, 1261 inliers
+  ORB:  691 good matches, 677 inliers
+
+Timing:
+  SIFT total: 1.032s
+  ORB total:  0.520s
