@@ -149,7 +149,7 @@ where $\text{MAX}_I$ is the maximum possible pixel value (e.g., 255 for 8-bit im
 where $\mu_x, \mu_y$ are local block means (luminance), $\sigma_x, \sigma_y$ are local standard deviations (contrast), $\sigma_{xy}$ is the cross-covariance (structure), and $c_1, c_2$ are stabilizing constants preventing division by zero. SSIM ranges from 0 (no structural correlation) to 1 (identical).
 
 % -------------------------------------------------------
-\subsection{Implementation and Qualitative Results}
+\subsection{Implementation \& Qualitative Results}
 
 We implemented the filtering pipeline using Python and OpenCV~\cite{bradski2000opencv}. To visually evaluate the mathematical effects of the filters, we present qualitative results using a kernel size of $k=5$.
 
@@ -206,7 +206,7 @@ When faced with extreme mathematical impulses (0 or 255), linear filters collaps
 
 \subsubsection{Advanced Observation: Edge Preservation \& Kernel Size Impact}
 
-To truly appreciate the architectural difference between a blind linear blur and an edge-preserving filter, observing a zoomed-in topological boundary is critical. The edge preservation comparison in Figure~\ref{fig:edge_preservation} explicitly shows how the Bilateral filter erects a mathematical barrier at color thresholds to keep edges sharp, while standard Gaussian convolution bleeds over the boundary.
+To truly appreciate the architectural difference between a blind linear blur and an edge-preserving filter, observing a zoomed-in topological boundary is critical. Below, the \textbf{edge preservation comparison} explicitly shows how the Bilateral filter erects an mathematical barrier at color thresholds to keep edges sharp, while standard Gaussian convolution bleeds over the boundary.
 
 \begin{figure}[H]
     \centering
@@ -224,7 +224,7 @@ Furthermore, the size of the convolution window (Kernel size $k$) forces a signi
     \label{fig:kernel_size}
 \end{figure}
 
-The pipeline was also verified on a secondary test image, confirming that these mathematical behaviors remain consistent regardless of the underlying photographic structure (Figure~\ref{fig:img2_gaussian}).
+\textit{(Note: The pipeline was also verified on a secondary test image, confirming that these mathematical behaviors remain consistent regardless of the underlying photographic structure).}
 
 \begin{figure}[H]
     \centering
@@ -266,7 +266,7 @@ Gaussian noise poses a difficult optimization problem: it corrupts every single 
 \begin{itemize}
     \item \textbf{The Noisy Baseline:} Across both test images, the raw Gaussian injection degraded the images to a mathematically severe state: $\sim 20.2$~dB PSNR and a nearly unrecognizable $\sim 0.22$ SSIM.
     \item \textbf{Linear Filter Performance:} The $O(2k)$ Gaussian filter demonstrated immense power here, natively aligning its bell-curve distribution to combat the Gaussian noise variance. As $k$ increased, the PSNR scaled excellently. In Test Image~2, the Gaussian filter at $k=7$ achieved an outstanding \textbf{30.16~dB} (a massive $+9.89$~dB recovery). The basic Mean filter plateaued early, achieving only $29.53$~dB at $k=5$ before losing efficacy.
-    \item \textbf{The Bilateral Paradox:} While the edge-preserving Bilateral filter achieved highly competitive PSNRs (\textbf{28.99~dB} on Image~1; \textbf{29.31~dB} on Image~2), it actually slightly underperformed the standard Gaussian filter's maximum SSIM for this specific dataset. This is because the continuous, non-zero variance of Gaussian noise frequently tricks the Bilateral's ``intensity threshold'' into believing the dense noise grain \textit{itself} is an edge, causing it to block smoothing in heavily corrupted regions.
+    \item \textbf{The Bilateral Paradox:} While the edge-preserving Bilateral filter achieved highly competitive PSNRs (\textbf{28.99~dB} on Image~1; \textbf{29.31~dB} on Image~2), it actually slightly underperformed the standard Gaussian filter's maximum SSIM for this specific dataset. Why? Because the continuous, non-zero variance of Gaussian noise frequently tricks the Bilateral's ``intensity threshold'' into believing the dense noise grain \textit{itself} is an edge, causing it to block smoothing in heavily corrupted regions.
 \end{itemize}
 
 \subsubsection{Quantitative Performance on Salt \& Pepper (Impulse) Noise}
@@ -284,10 +284,10 @@ Impulse noise destroys local topology completely by forcing absolute binary extr
 The empirical data exposes a critical threshold behavior regarding window size ($k$):
 \begin{enumerate}
     \item \textbf{For Additive Noise (Gaussian):} Scaling $k$ upward mathematically increases the sample pool, pushing the average error closer to zero. Thus, the PSNR of Gaussian filters strictly increased as $k \to 7$.
-    \item \textbf{For Impulse Noise (Salt \& Pepper):} Scaling $k$ upward actively \textit{degrades} performance. We observed the Median filter's SSIM drop from an optimal \textbf{0.898} ($k=3$) down to \textbf{0.795} ($k=7$) in Image~2. Because the Median logic replaces the center with a ranked neighbor, expanding the search grid arbitrarily forces pixels from completely different geometric structures (like backgrounds intruding into foregrounds) to replace the center pixel, aggressively warping the natural geometry.
+    \item \textbf{For Impulse Noise (Salt \& Pepper):} Scaling $k$ upward actively \textit{degrades} performance. We observed the Median filter's SSIM drop from an optimal \textbf{0.898} parameter ($k=3$) down to \textbf{0.795} ($k=7$) in Image~2. Because the Median logic replaces the center with a ranked neighbor, expanding the search grid arbitrarily forces pixels from completely different geometric structures (like backgrounds intruding into foregrounds) to replace the center pixel, aggressively warping the natural geometry.
 \end{enumerate}
 
-\subsubsection{Part A Conclusion}
+\subsubsection{Conclusion}
 
 The data conclusively proves that there is no ``universal'' image restoration filter. Additive zero-mean statistical noise (Gaussian) requires massive spatial sampling distributions (Gaussian filter $k=7$), while topological impulse noise (Salt \& Pepper) demands non-linear extremity rejection in small, highly localized windows (Median filter $k=3$).
 
@@ -347,7 +347,7 @@ In a raw stereo pair, epipolar lines can be arbitrarily oriented. \textbf{Rectif
 
 \subsubsection{Stereo Pair \& Epipolar Verification}
 
-First, we established the epipolar geometry and rectified the stereo pair to guarantee horizontal alignment.
+First, we established the epipolar geometry and rectified the stereo pair to guarantee horizontal alignment. The rectified pair shows the two views warped into scanline correspondence.
 
 \begin{figure}[H]
     \centering
@@ -390,20 +390,24 @@ Alternatively, the \textbf{Sum of Squared Differences (SSD)} can be used, which 
 
 The disparity at each pixel is then selected as the value that minimizes the cost: $d^*(x, y) = \arg\min_d C(x, y, d)$.
 
+\textbf{Colorized Disparity Maps:}
+Warm colors (red/yellow) indicate nearby objects (high disparity), while cool colors (blue/purple) represent distant objects (low disparity).
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{results/part_b/disparity_bm_display.png}
-    \caption{Colorized disparity map from Block Matching (BM). Warm colors indicate nearby objects (high disparity); cool colors represent distant objects.}
+    \caption{BM Disparity Map.}
     \label{fig:disparity_bm}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{results/part_b/disparity_sgbm_display.png}
-    \caption{Colorized disparity map from Semi-Global Block Matching (SGBM).}
+    \caption{SGBM Disparity Map.}
     \label{fig:disparity_sgbm}
 \end{figure}
 
+\textbf{Block Size Impact:}
 The choice of the matching window size $w$ represents a fundamental trade-off: smaller windows preserve fine detail but are highly noise-sensitive, while larger windows produce smoother results but blur object boundaries and over-smooth depth discontinuities.
 
 \begin{figure}[H]
@@ -456,14 +460,14 @@ We systematically evaluated two stereo matching paradigms: the greedy local \tex
 BM is the simplest stereo correspondence algorithm. For every pixel $p=(x,y)$, it slides a fixed-size window $W$ along the corresponding scanline in the right image, computes the cost at each candidate disparity $d$, and selects the minimum:
 
 \begin{equation}
-    d_{BM}(x, y) = \arg\min_d \sum_{(i,j) \in W} \text{Cost}\left( I_{L}(x+i, y+j),\; I_{R}(x+i-d, y+j) \right)
+    d_{BM}(x, y) = \arg\min_d \sum_{(i,j) \in W} \text{Cost}\left( I_{L}(x+i, y+j), I_{R}(x+i-d, y+j) \right)
 \end{equation}
 
-where the $\text{Cost}$ function is typically the Sum of Absolute Differences (SAD) or Sum of Squared Differences (SSD). This is a purely \textbf{greedy, local decision}---each pixel's disparity is chosen independently of its neighbors.
+where the $\text{Cost}$ function is typically the Sum of Absolute Differences (SAD) or Sum of Squared Differences (SSD). This is a purely \textbf{greedy, local decision} --- each pixel's disparity is chosen independently of its neighbors.
 
 \textbf{Fundamental limitations of BM:}
 \begin{itemize}
-    \item \textbf{Textureless regions:} In areas with minimal intensity variation (blank walls, uniform sky), the cost function $C_{SAD}$ is flat across all candidate disparities, producing essentially random disparity assignments. This manifests as the characteristic dense ``speckle noise'' visible in the BM disparity map.
+    \item \textbf{Textureless regions:} In areas with minimal intensity variation (blank walls, uniform sky), the cost function $C_{SAD}$ is flat across all candidate disparities, producing essentially random disparity assignments. This manifests as the characteristic dense \textbf{``speckle noise''} visible in the BM disparity map.
     \item \textbf{Depth discontinuities:} BM averages across fixed square windows that straddle object boundaries, causing foreground-background bleeding where the disparity map shows gradual ramps instead of sharp edges at occlusion boundaries.
     \item \textbf{No smoothness enforcement:} Because each pixel is processed independently, there is no mechanism to enforce the physical reality that neighboring pixels on the same surface should have similar disparities.
 \end{itemize}
@@ -481,8 +485,8 @@ SGBM minimizes the following global energy function:
 where:
 \begin{itemize}
     \item $C(p, D_p)$ is the pixel-wise matching cost (data term) at pixel $p$ with disparity $D_p$.
-    \item $P_1$ is the penalty for small disparity changes ($|D_p - D_q| = 1$) between neighboring pixels $p$ and $q$---this allows smooth surfaces to have gentle depth gradients (like a slanted wall).
-    \item $P_2$ is the penalty for large disparity jumps ($|D_p - D_q| > 1$)---this discourages noisy disparity spikes while still permitting sharp discontinuities at real object boundaries. The constraint $P_2 > P_1$ is enforced.
+    \item $P_1$ is the penalty for small disparity changes ($|D_p - D_q| = 1$) between neighboring pixels $p$ and $q$ --- this allows smooth surfaces to have gentle depth gradients (like a slanted wall).
+    \item $P_2$ is the penalty for large disparity jumps ($|D_p - D_q| > 1$) --- this discourages noisy disparity spikes while still permitting sharp discontinuities at real object boundaries. The constraint $P_2 > P_1$ is enforced.
     \item $N_p$ denotes the set of neighboring pixels of $p$.
 \end{itemize}
 
@@ -527,9 +531,9 @@ The disparity at each pixel is then: $D_p = \arg\min_d S(p, d)$.
     \end{tabular}
 \end{table}
 
-BM completed in \textbf{0.008s} while SGBM required \textbf{0.012s}---SGBM is 1.5$\times$ slower, but both remain well within real-time acceptable bounds ($<50$\,ms). The Fundamental Matrix correctly achieved rank \textbf{2} (as expected from epipolar geometry theory) using \textbf{386} inlier matches.
+BM completed in \textbf{0.008s} while SGBM required \textbf{0.012s} --- SGBM is 1.5$\times$ slower, but both remain well within real-time acceptable bounds ($< 50$ms). The Fundamental Matrix correctly achieved rank \textbf{2} (as expected from epipolar geometry theory) using \textbf{386} inlier matches.
 
-\subsubsection{Part B Conclusion}
+\subsubsection{Conclusion for Part B}
 
 The 50\% computational overhead of SGBM over BM is negligible in absolute terms (4 milliseconds). In exchange, SGBM delivers categorically superior disparity quality:
 \begin{itemize}
@@ -549,7 +553,7 @@ To stitch a multi-view panorama, invariant characteristic features must be detec
 
 \subsection{Feature Detection \& Extraction}
 
-Algorithms must locate ``Keypoints''---unique pixel neighborhoods that remain algorithmically recognizable regardless of camera rotation, scale, or illumination changes.
+Algorithms must locate ``Keypoints'' --- unique pixel neighborhoods that remain algorithmically recognizable regardless of camera rotation, scale, or illumination changes.
 
 \begin{itemize}
     \item \textbf{SIFT (Scale-Invariant Feature Transform)}~\cite{lowe2004distinctive}: Operates by searching for local extrema across a continuous Difference-of-Gaussians (DoG) scale-space pyramid. By calculating the difference between consecutively blurred images, SIFT identifies scale-invariant blobs mathematically defined as:
@@ -565,7 +569,8 @@ Algorithms must locate ``Keypoints''---unique pixel neighborhoods that remain al
     where $m_{pq}$ represents the image moments. It describes them using a 256-bit binary string (Rotated BRIEF) charting simple intensity comparisons between pairwise neighboring pixels, steered by the previously calculated orientation $\theta$.
 \end{itemize}
 
-Notice how SIFT densely populates the image with gradient-based extrema, while ORB focuses sparsely on high-contrast corners (Figures~\ref{fig:keypoints_sift}--\ref{fig:keypoints_orb}).
+\textbf{Feature Keypoints Extraction Visualization:}
+Notice how SIFT (top image sequence) densely populates the image with gradient-based extrema, while ORB (bottom) focuses sparsely on high-contrast corners.
 
 \begin{figure}[H]
     \centering
@@ -594,7 +599,8 @@ Once descriptors are extracted, they must be paired. For SIFT, we compute the Eu
 
 A match is only accepted if the distance to the \textit{best} matching descriptor is significantly smaller (e.g., using threshold $\tau = 0.75$) than the distance to the \textit{second-best} descriptor. If the ratio is close to 1.0, it means the feature has another highly similar candidate nearby, indicating ambiguity. Filtering by this ratio mathematically guarantees the feature mapped is unique and unambiguous across the two images.
 
-Below are the matched features between overlapping views using both SIFT and ORB matchers.
+\textbf{Matched Features:}
+Below are the mapped features between overlapping views using both SIFT and ORB matchers.
 
 \begin{figure}[H]
     \centering
@@ -644,7 +650,7 @@ Below are the matched features between overlapping views using both SIFT and ORB
 Even after distance and ratio filtering, incorrect geometric matches (outliers) will persist due to occlusions, moving objects, or similar patterns in different locations. To project View~2 into the coordinate frame of View~1, we must solve for the $3 \times 3$ Homography transformation matrix $\mathbf{H}$, which has 8 degrees of freedom:
 
 \begin{equation}
-    \begin{bmatrix} x' \\ y' \\ w' \end{bmatrix} = \begin{bmatrix} h_{11} & h_{12} & h_{13} \\ h_{21} & h_{22} & h_{23} \\ h_{31} & h_{32} & h_{33} \end{bmatrix} \begin{bmatrix} x \\ y \\ 1 \end{bmatrix} \quad \text{where} \quad X_{final} = \frac{x'}{w'},\; Y_{final} = \frac{y'}{w'}
+    \begin{bmatrix} x' \\ y' \\ w' \end{bmatrix} = \begin{bmatrix} h_{11} & h_{12} & h_{13} \\ h_{21} & h_{22} & h_{23} \\ h_{31} & h_{32} & h_{33} \end{bmatrix} \begin{bmatrix} x \\ y \\ 1 \end{bmatrix} \quad \text{where} \quad X_{final} = \frac{x'}{w'}, Y_{final} = \frac{y'}{w'}
 \end{equation}
 
 A standard Least Squares solver would sum the error from all points, making it catastrophically skewed by even a single severe outlier. Instead, we rely on \textbf{RANSAC (Random Sample Consensus)}~\cite{fischler1981random}, which leverages a hypothesis-and-verify paradigm:
@@ -727,7 +733,7 @@ We rigorously compared the two descriptors across 3 consecutive pairwise stitche
 
 \subsubsection{Match Density and Quality (SIFT's Advantage)}
 
-SIFT dominated the extraction yield, computing \textbf{4,803} total good matches---an impressive \textbf{2.18$\times$} more than ORB's \textbf{2,205} matches. SIFT's floating-point gradient histograms are heavily resilient to camera viewpoint shifting and scale changes, successfully pairing features even on the relatively structureless sky/cloud regions. Both descriptors maintained exceptionally high inlier ratios post-RANSAC (SIFT: 99.7\%, ORB: 98.1\%), confirming that Lowe's ratio test paired with RANSAC effectively enforces geometric purity regardless of the underlying descriptor mathematics.
+SIFT dominated the extraction yield, computing \textbf{4,803} total good matches --- an impressive \textbf{2.18$\times$} more than ORB's \textbf{2,205} matches. SIFT's floating-point gradient histograms are heavily resilient to camera viewpoint shifting and scale changes, successfully pairing features even on the relatively structureless sky/cloud regions. Both descriptors maintained exceptionally high inlier ratios post-RANSAC (SIFT: 99.7\%, ORB: 98.1\%), confirming that Lowe's ratio test paired with RANSAC effectively enforces geometric purity regardless of the underlying descriptor mathematics.
 
 \subsubsection{Computational Efficiency (ORB's Advantage)}
 
@@ -760,7 +766,7 @@ While the implemented algorithms establish robust baselines, these foundational 
 
 \subsubsection{Part A Extensions: Advanced Restoration}
 \begin{itemize}
-    \item \textbf{Adaptive Filtering:} Upgrading from statically-sized kernels to spatially adaptive filters (e.g., Adaptive Wiener Filters) that automatically compute local signal variance $\sigma^2$ before blurring, thereby providing mathematically optimal noise suppression per pixel.
+    \item \textbf{Adaptive Filtering:} Upgrading from statically-sized kernels to spatially additive filters (e.g., Adaptive Wiener Filters) that automatically compute local signal variance $\sigma^2$ before blurring, thereby providing mathematically optimal noise suppression per pixel.
     \item \textbf{Deep Denoising Autoencoders:} Replacing classical convolution matrices with a convolutional neural network (CNN). Training an encoder-decoder architecture (e.g., U-Net) on pairs of synthetic noisy and clean images to recognize and procedurally remove non-Gaussian, non-uniform noise arrays.
 \end{itemize}
 
@@ -773,7 +779,7 @@ While the implemented algorithms establish robust baselines, these foundational 
 \subsubsection{Part C Extensions: Seamless Immersion}
 \begin{itemize}
     \item \textbf{Multi-Band Laplacian Blending:} Currently, naive alpha-blending across homography seams produces hard ``ghosting'' artifacts and exposure inconsistencies. Leveraging Laplacian pyramid blending separates the image into high and low spatial frequencies---seamlessly blending broad exposure gradients on low levels while retaining razor-sharp stitched edges on high levels.
-    \item \textbf{Bundle Adjustment \& Spherical Warping:} Standard homography transformation projects all frames linearly onto an infinite 2D plane, causing severe stretching distortions mathematically inherent at the panorama's extremities. Projecting coordinates onto a cylinder or sphere, followed by a non-linear Least Squares ``Bundle Adjustment'' of all camera parameters simultaneously, would permit infinite $360^{\circ}$ topological panoramas.
+    \item \textbf{Bundle Adjustment \& Spherical Warping:} Standard homography transformation projects all frames linearly onto an infinite 2D plane, causing severe stretching distortions mathematically inherent at the panorama's extremities. Projecting coordinates onto a cylinder or sphere, followed by a non-linear Least Squares `Bundle Adjustment' of all camera parameters simultaneously, would permit infinite $360^{\circ}$ topological panoramas.
 \end{itemize}
 
 % ============================================================
